@@ -6,6 +6,12 @@
  */ 
 
 #define F_CPU 8000000
+#define CRC_CALC_BYPASS
+//#define ASCII_DECODE
+//#define AUTO_SHOT
+#define USE_UART_DEBUG_COMMANDS
+
+//system includes
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
@@ -24,24 +30,37 @@
 #define ibi(port,bit)               port^=(1<<(bit))  //invert bit
 #define isBitSet(reg,bit)           ((reg)&(1<<(bit)))
 
-#define CRC_CALC_BYPASS
-//#define ASCII_DECODE
-//#define AUTO_SHOT
-#define USE_UART_DEBUG_COMMANDS
+
+//project includes
 #include "CybergunClass.hpp"
 #include "CybergunProtoClass.hpp"
 
+
+
+#ifdef USE_UART_DEBUG_COMMANDS
+#warning "ANY DATA CANNOT BE MORE THAN 250"
+#endif //USE_UART_DEBUG_COMMANDS
+#ifdef CRC_CALC_BYPASS
+#warning "CRC bypass is ON!"
+#endif //CRC_CALC_BYPASS
+#ifdef ASCII_DECODE
+#warning "WARNING! ASCII_DECODE is ON! Data may be damaged!"
+#endif //ASCII_DECODE
+#ifdef AUTO_SHOT
+#warning "AUTO_SHOT is ON!"
+#endif //AUTO_SHOT
 
 
 
 
 CybergunClass Cybergun;
 CybergunProtoClass CybergunProto;
+volatile uint32_t uptime = 0;
 
 
-uint8_t a1=0;
-uint8_t a2=32;
-volatile uint8_t tmp=0;
+//uint8_t a1=0;
+//uint8_t a2=32;
+//volatile uint8_t tmp=0;
 
 class TRX_environmentInterface{
 	public:
@@ -138,12 +157,11 @@ ISR(USART_RXC_vect)
 	PORTB &= ~(1 << PB0);
 */
 }
-volatile uint32_t uptime = 0;
 
 ISR(TIMER0_OVF_vect) //8ms
 {
 	#ifdef AUTO_SHOT
-	static uint8_t shot_counter = 0;
+	static uint8_t shot_counter = 0;// 255x8ms = shot each 2.048 sec
 	#endif //AUTO_SHOT
 	static uint8_t one_sec_counter = 0;
 	//[128]	16384

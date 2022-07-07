@@ -11,10 +11,6 @@
 
 #include "TRXPacketClass.hpp"
 
-#ifdef USE_UART_DEBUG_COMMANDS
-#warning("ANY DATA CANNOT BE MORE THAN 250")
-#endif //USE_UART_DEBUG_COMMANDS
-
 class CybergunProtoClass{
 	public:
 	const static uint8_t STUCK_THRESHOLD = 10;
